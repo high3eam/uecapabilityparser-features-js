@@ -255,6 +255,93 @@
             });
         }
 
+        function lteBwClassCCs(bwClass) {
+            switch (bwClass) {
+                case 'A': return 1;
+                case 'B':
+                case 'C': return 2;
+                case 'D': return 3;
+                case 'E': return 4;
+                case 'F': return 5;
+                default:
+                    return 1;
+            }
+        }
+
+        function nrFr1BwClassCCs(bwClass) {
+            switch (bwClass) {
+                case 'A': return 1;
+                case 'B':
+                case 'C': return 2;
+                case 'D':
+                case 'G':
+                case 'M': return 3;
+                case 'E':
+                case 'H':
+                case 'N': return 4;
+                case 'I':
+                case 'O': return 5;
+                case 'J': return 6;
+                case 'K': return 7;
+                case 'L': return 8;
+                default:
+                    return 1;
+            }
+        }
+
+        function nrFr2BwClassCCs(bwClass) {
+            switch (bwClass) {
+                case 'A': return 1;
+                case 'B':
+                case 'D':
+                case 'G':
+                case 'O':
+                case 'R2': return 2;
+                case 'C':
+                case 'E':
+                case 'H':
+                case 'P':
+                case 'R3': return 3;
+                case 'V':
+                case 'F':
+                case 'I':
+                case 'Q':
+                case 'R4': return 4;
+                case 'W':
+                case 'R':
+                case 'J':
+                case 'R5': return 5;
+                case 'S':
+                case 'K':
+                case 'R6': return 6;
+                case 'T':
+                case 'L':
+                case 'R7': return 7;
+                case 'U':
+                case 'M':
+                case 'R8': return 8;
+                case 'R9': return 9;
+                case 'R10': return 10;
+                case 'R11': return 11;
+                case 'R12': return 12;
+                default:
+                    return 1;
+            }
+        }
+
+        function getRatFromBand(band) {
+            const nrMmwaveBands = [257, 258, 259, 260, 261, 262];
+            const nrBands = [1, 2, 3, 5, 7, 8, 12, 13, 14, 18, 20, 24, 25, 26, 28, 29, 30, 31, 34, 38, 39, 40, 41, 46, 47, 48, 50, 51, 53, 54, 65, 66, 67, 68, 70, 71, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 104, 105, 106, 109, 110];
+    
+            if (nrMmwaveBands.includes(band)) {
+                return 'NR_FR2';
+            } else if (nrBands.includes(band)) {
+                return 'NR_FR1';
+            } else {
+                return 'LTE';
+            }
+        }
+
         const lteLowbands = [5, 6, 8, 12, 13, 14, 17, 18, 19, 20, 26, 27, 28, 29, 31, 44, 67, 68, 71, 72, 73, 85, 87, 88, 103, 106, 107, 108];
         const nrLowbands = [5, 8, 12, 13, 14, 18, 20, 26, 28, 29, 31, 67, 71, 72, 81, 82, 83, 85, 89, 91, 92, 93, 94, 100, 105, 106, 109];
 
@@ -358,13 +445,16 @@
             function calculateMimoStreams(component) {
                 if (component.mimoDl && component.mimoDl.value && !isNaN(component.mimoDl.value)) {
                     let multiplier = 1;
-                    if (component.bwClassDl === 'B' || component.bwClassDl === 'C') {
-                        multiplier = 2;
-                    } else if (component.bwClassDl === 'D') {
-                        multiplier = 3;
-                    } else if (component.bwClassDl === 'E') {
-                        multiplier = 4;
+                    const rat = getRatFromBand(component.band);
+        
+                    if (rat === 'LTE') {
+                        multiplier = lteBwClassCCs(component.bwClassDl || 'A');
+                    } else if (rat === 'NR_FR1') {
+                        multiplier = nrFr1BwClassCCs(component.bwClassDl || 'A');
+                    } else if (rat === 'NR_FR2') {
+                        multiplier = nrFr2BwClassCCs(component.bwClassDl || 'A');
                     }
+        
                     return component.mimoDl.value * multiplier;
                 }
                 return 0;
@@ -381,16 +471,19 @@
                 if (!component.maxBwDl) return 0;
 
                 let bandwidth = 0;
-                const multiplier = {
-                    'A': 1,
-                    'B': 2,
-                    'C': 2,
-                    'D': 3,
-                    'E': 4
-                };
+                let multiplier = 1;
+                const rat = getRatFromBand(component.band);
+    
+                if (rat === 'LTE') {
+                    multiplier = lteBwClassCCs(component.bwClassDl || 'A');
+                } else if (rat === 'NR_FR1') {
+                    multiplier = nrFr1BwClassCCs(component.bwClassDl || 'A');
+                } else if (rat === 'NR_FR2') {
+                    multiplier = nrFr2BwClassCCs(component.bwClassDl || 'A');
+                }
 
                 if (component.maxBwDl.type === "single") {
-                    bandwidth = component.maxBwDl.value * (multiplier[component.bwClassDl] || 1);
+                    bandwidth = component.maxBwDl.value * multiplier;
                 } else if (component.maxBwDl.type === "mixed" && Array.isArray(component.maxBwDl.value)) {
                     bandwidth = component.maxBwDl.value.reduce((sum, bw) => sum + bw, 0);
                 }
@@ -399,14 +492,17 @@
             }
 
             function calculateVirtualBands(component) {
-                const multiplier = {
-                    'A': 1,
-                    'B': 2,
-                    'C': 2,
-                    'D': 3,
-                    'E': 4
-                };
-                return multiplier[component.bwClassDl] || 1;
+                const rat = getRatFromBand(component.band);
+    
+                if (rat === 'LTE') {
+                    return lteBwClassCCs(component.bwClassDl || 'A');
+                } else if (rat === 'NR_FR1') {
+                    return nrFr1BwClassCCs(component.bwClassDl || 'A');
+                } else if (rat === 'NR_FR2') {
+                    return nrFr2BwClassCCs(component.bwClassDl || 'A');
+                }
+    
+                return 1;
             }
 
             const capabilitiesList = isMultiOutput ? data.capabilitiesList : [data];
