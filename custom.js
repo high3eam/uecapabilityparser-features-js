@@ -911,7 +911,7 @@
             addSupportRow(hasLteCaData || hasFoundLteCaCombos, hasFoundLteCaCombos, sortCombinations([...lteCaCombos]).join(', '), "No lowband LTE-CA combo support", "Lowband LTE-CA combos", "Log misses LTE-CA capabilities.");
             addSupportRow(hasEndc, foundLowbandSupport, sortCombinations([...loggedCombinations]).join(', '), "No lowband EN-DC support", "Lowband EN-DC combos", "Log misses EN-DC capabilities.");
             addSupportRow(hasNrca, foundNrCaSupport, sortCombinations([...nrCaCombos]).join(', '), "No lowband NR-CA combo support", "Lowband NR-CA combos", "Log misses NR-CA capabilities.");
-            addSupportRow(hasLteCaData || hasEndc, foundLte4Rx, [...lte4RxBands].sort((a, b) => a - b).join(', '), "No lowband LTE 4Rx support", "Lowband LTE 4Rx support", "Log misses EN-DC and LTE-CA capabilities.");
+            addSupportRow(hasLteCaData || hasEndc, foundLte4Rx, [...lte4RxBands].sort((a, b) => a - b).join(', '), "No lowband LTE 4Rx support", "Lowband LTE 4Rx support", "Log misses LTE-CA and EN-DC capabilities.");
             addSupportRow(hasEndc || hasNrca, foundNr4Rx, [...nr4RxBands].sort((a, b) => a - b).map(band => `n${band}`).join(', '), "No lowband NR 4Rx support", "Lowband NR 4Rx support", "Log misses EN-DC and NR-CA capabilities.");
             addSupportRow(hasEndc || hasNrca, foundNr6Rx, [...nr6RxBands].sort((a, b) => a - b).map(band => `n${band}`).join(', '), "No NR 6Rx support", "NR 6Rx bands", "Log misses EN-DC and NR-CA capabilities.");
             addSupportRow(hasLteCaData || hasEndc, maxLteMimo > 0, `${maxLteMimo} Rx`, "No LTE MIMO support found", "LTE max MIMO Rx", "Log misses LTE-CA and EN-DC capabilities.", true);
