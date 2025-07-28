@@ -525,6 +525,10 @@
                                         lte4RxBands.add(component.band);
                                         foundLte4Rx = true;
                                     }
+
+                                    if (component.mimoDl && component.mimoDl.value) {
+                                        maxLteMimo = updateMaxMimo(component.mimoDl.value, maxLteMimo);
+                                    }
                                 });
 
                                 lteCombosToCheck.forEach(combo => {
@@ -910,7 +914,7 @@
             addSupportRow(hasLteCaData || hasEndc, foundLte4Rx, [...lte4RxBands].sort((a, b) => a - b).join(', '), "No lowband LTE 4Rx support", "Lowband LTE 4Rx support", "Log misses EN-DC and LTE-CA capabilities.");
             addSupportRow(hasEndc || hasNrca, foundNr4Rx, [...nr4RxBands].sort((a, b) => a - b).map(band => `n${band}`).join(', '), "No lowband NR 4Rx support", "Lowband NR 4Rx support", "Log misses EN-DC and NR-CA capabilities.");
             addSupportRow(hasEndc || hasNrca, foundNr6Rx, [...nr6RxBands].sort((a, b) => a - b).map(band => `n${band}`).join(', '), "No NR 6Rx support", "NR 6Rx bands", "Log misses EN-DC and NR-CA capabilities.");
-            addSupportRow(hasLteCaData, maxLteMimo > 0, `${maxLteMimo} Rx`, "No LTE MIMO support found", "LTE max MIMO Rx", "Log misses LTE-CA capabilities.", true);
+            addSupportRow(hasLteCaData || hasEndc, maxLteMimo > 0, `${maxLteMimo} Rx`, "No LTE MIMO support found", "LTE max MIMO Rx", "Log misses LTE-CA and EN-DC capabilities.", true);
             addSupportRow(hasEndc || hasNrca, maxNrMimo > 0, `${maxNrMimo} Rx`, "No NR MIMO support found", "NR max MIMO Rx", "Log misses EN-DC and NR-CA capabilities.", true);
             addSupportRow(hasLteCaData, maxLteCaMimoStreams > 0, `${maxLteCaMimoStreams} Streams`, "No LTE CA MIMO stream information found", "LTE max DL streams", "Log misses LTE-CA capabilities.", true);
             addSupportRow(hasEndc, maxEndcMimoStreams > 0, `${maxEndcMimoStreams} Streams`, "No ENDC MIMO stream information found", "NR-NSA max DL streams", "Log misses EN-DC capabilities.", true);
