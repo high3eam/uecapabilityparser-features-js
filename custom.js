@@ -273,6 +273,19 @@
             const nrTddBands = new Set([34, 38, 39, 40, 41, 46, 47, 48, 50, 53, 77, 78, 79, 90, 96, 101, 102, 104]);
             const nrFddBands = new Set([1, 2, 3, 5, 7, 8, 12, 13, 14, 18, 20, 24, 25, 26, 28, 30, 31, 65, 66, 70, 71, 72, 74, 85, 91, 92, 93, 94, 100, 105, 106, 109]);
             const nrSulBandsToCheck = [80, 81, 82, 83, 84, 86, 89, 95, 97, 98, 99];
+            const sulBandMapping = {
+                80: 3,
+                81: 8,
+                82: 20,
+                83: 28,
+                84: 1,
+                86: 66,
+                89: 5,
+                95: 34,
+                97: 40,
+                98: 39,
+                99: 24
+            };
             const nrMmwaveBandwidths = new Set();
             const validMmwaveBandwidths = [50, 100, 200, 400, 800, 1600, 2000];
 
@@ -815,7 +828,7 @@
             addSupportRow(hasEndc || hasNrdc, maxNrFr2DlModulation, formatModulation(maxNrFr2DlModulation), "No NR FR2 DL modulation information found", "NR FR2 max DL modulation", "Log misses EN-DC and NR-DC capabilities.", true);
             addSupportRow(hasEndc || hasNrdc, maxNrFr2UlModulation, formatModulation(maxNrFr2UlModulation), "No NR FR2 UL modulation information found", "NR FR2 max UL modulation", "Log misses EN-DC and NR-DC capabilities.", true);
             addSupportRow(hasEndc || hasNrca, foundNrMaxBwSupport, Object.entries(nrMaxBwSupport).filter(([band, bw]) => bw > 20).map(([band, bw]) => `n${band}@${bw}MHz`).join(', '), "No extended NR FDD bandwidth support", "NR FDD extended bw support", "Log misses EN-DC and NR-CA capabilities.");
-            addSupportRow(hasEndc || hasNrca, nrSulBandsSupported.size > 0, [...nrSulBandsSupported].sort((a, b) => a - b).map(band => `n${band}`).join(', '), "No NR SUL bands support", "NR SUL bands", "Log misses EN-DC and NR-CA capabilities.");
+            addSupportRow(hasEndc || hasNrca, nrSulBandsSupported.size > 0, [...nrSulBandsSupported].sort((a, b) => a - b).map(band => `n${band}(n${sulBandMapping[band]})`).join(', '), "No NR SUL bands support", "NR SUL bands", "Log misses EN-DC and NR-CA capabilities.");
             addSupportRow(hasEndc, foundNrUlMimoInEndc, [...nrUlmimoBandsEndc].map(band => band.replace('n', '')).sort((a, b) => a - b).map(band => `n${band}`).join(', '), "No NR-NSA UL-MIMO support", "NR-NSA UL MIMO", "Log misses EN-DC capabilities.");
             addSupportRow(hasNrca, foundNrUlMimo, [...nrUlmimoBands].map(band => band.replace('n', '')).sort((a, b) => a - b).map(band => `n${band}`).join(', '), "No NR-SA UL-MIMO support", "NR-SA UL MIMO", "Log misses NR-CA capabilities.");
             addSupportRow(hasNrca, foundNrUlCa, sortCombinations([...nrUlcaCombos]).join(', '), "No NR-SA UL-CA support", "NR-SA ULCA", "Log misses NR-CA capabilities.");
