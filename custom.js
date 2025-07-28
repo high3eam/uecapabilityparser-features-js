@@ -560,7 +560,6 @@
                                 let totalTddBandwidth = 0;
                                 let totalVirtualBands = 0;
                                 let hasTddBand = false;
-                                let tddBandwidths = [];
 
                                 nrcaItem.components.forEach(checkMmwaveBandwidth);
 
@@ -582,7 +581,6 @@
                                         hasTddBand = true;
                                         const bandwidth = calculateBandwidth(component);
                                         totalTddBandwidth += bandwidth;
-                                        tddBandwidths.push(bandwidth);
                                         totalVirtualBands += calculateVirtualBands(component);
                                     } else if (nrFddBands.has(component.band)) {
                                         hasFddBand = true;
