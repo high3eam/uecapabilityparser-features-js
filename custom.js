@@ -1,64 +1,36 @@
 (function() {
 
-    if (!localStorage.getItem('disable_advanced_search')) {
-        function addAdvancedSearchLink() {
-            let link = document.createElement("a");
-            link.href = "/library/advancedsearch";
-            link.target = "_blank";
-            link.textContent = "Advanced Search";
-            link.className = "multiellipsis my-2 flex h-[150px] overflow-hidden p-2 text-center text-lg focus:outline-none focus:ring focus:ring-gray-400 border-2 border-solid border-black bg-white text-black";
-            link.setAttribute("q:link", "");
-            link.setAttribute("data-prefetch", "");
-            link.style.display = "inline-block";
-            link.style.maxWidth = "200px";
-            link.style.height = "auto";
-            link.style.marginRight = "10px";
+    if (!localStorage.getItem('hide_advanced_search') && window.location.hostname === 'uecaps.hennes.xyz') {
+        localStorage.setItem('hide_advanced_search', '1');
+    }
 
-            let targetDiv = document.querySelector("body > div > main > div.flex.flex-1.flex-col > div.mx-auto.w-full.max-w-7xl > div.relative.my-2.flex.flex-col");
-            if (targetDiv) {
-                targetDiv.style.flexDirection = "row";
-                targetDiv.style.alignItems = "center";
-                let inputField = targetDiv.querySelector('input[id^="text-search-rs70xc-"]');
-                if (inputField) {
-                    inputField.style.flex = "1";
-                    inputField.style.width = "auto";
-                    targetDiv.insertBefore(link, inputField);
-                }
-                let searchIcon = targetDiv.querySelector("svg.feather.feather-search");
-                if (searchIcon) {
-                    searchIcon.remove();
-                }
+    if (localStorage.getItem('hide_advanced_search')) {
+        function hideAdvancedSearchButton() {
+            const advancedSearchBtn = document.querySelector('a[title="Advanced Search"], a[href="/library/advancedsearch/"]');
+            if (advancedSearchBtn) {
+                advancedSearchBtn.style.display = 'none';
             }
         }
 
-        function checkAndAddLink(mutations, observer) {
-            let targetDiv = document.querySelector("body > div > main > div.flex.flex-1.flex-col > div.mx-auto.w-full.max-w-7xl > div.relative.my-2.flex.flex-col");
-            if (targetDiv) {
-                let advancedSearchExists = targetDiv.querySelector('a[href="/library/advancedsearch"]');
-                if (!advancedSearchExists) {
-                    addAdvancedSearchLink();
-                    observer.disconnect();
-                }
-            }
-        }
-
-        function initObserver() {
+        function initHideObserver() {
             if (document.body) {
-                const observer = new MutationObserver(checkAndAddLink);
+                const observer = new MutationObserver(() => {
+                    hideAdvancedSearchButton();
+                });
                 observer.observe(document.body, {
                     childList: true,
                     subtree: true
                 });
-                checkAndAddLink(null, observer);
+                hideAdvancedSearchButton();
             } else {
-                setTimeout(initObserver, 100);
+                setTimeout(initHideObserver, 100);
             }
         }
 
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initObserver);
+            document.addEventListener('DOMContentLoaded', initHideObserver);
         } else {
-            initObserver();
+            initHideObserver();
         }
     }
 
@@ -577,7 +549,7 @@
                                         maxNrMimo = updateMaxMimo(component.mimoDl.value, maxNrMimo);
                                     }
 
-                                    if (component.mimoUl && component.mimoUl.value === 2) {
+                                    if (component.mimoUl && (component.mimoUl.value === 2 || component.mimoUl.value === 4)) {
                                         nrUlmimoBandsEndc.add(`n${component.band}`);
                                         foundNrUlMimoInEndc = true;
                                     }
@@ -721,7 +693,7 @@
                                 }
 
                                 nrcaItem.components.forEach(component => {
-                                    if (component.mimoUl && component.mimoUl.value === 2) {
+                                    if (component.mimoUl && (component.mimoUl.value === 2 || component.mimoUl.value === 4)) {
                                         nrUlmimoBands.add(`n${component.band}`);
                                         foundNrUlMimo = true;
                                     }
@@ -911,7 +883,7 @@
             addSupportRow(hasLteCaData || hasFoundLteCaCombos, hasFoundLteCaCombos, sortCombinations([...lteCaCombos]).join(', '), "No lowband LTE-CA combo support", "Lowband LTE-CA combos", "Log misses LTE-CA capabilities.");
             addSupportRow(hasEndc, foundLowbandSupport, sortCombinations([...loggedCombinations]).join(', '), "No lowband EN-DC support", "Lowband EN-DC combos", "Log misses EN-DC capabilities.");
             addSupportRow(hasNrca, foundNrCaSupport, sortCombinations([...nrCaCombos]).join(', '), "No lowband NR-CA combo support", "Lowband NR-CA combos", "Log misses NR-CA capabilities.");
-            addSupportRow(hasLteCaData || hasEndc, foundLte4Rx, [...lte4RxBands].sort((a, b) => a - b).join(', '), "No lowband LTE 4Rx support", "Lowband LTE 4Rx support", "Log misses LTE-CA and EN-DC capabilities.");
+            addSupportRow(hasLteCaData || hasEndc, foundLte4Rx, [...lte4RxBands].sort((a, b) => a - b).join(', '), "No lowband LTE 4Rx support", "Lowband LTE 4Rx support", "Log misses EN-DC and LTE-CA capabilities.");
             addSupportRow(hasEndc || hasNrca, foundNr4Rx, [...nr4RxBands].sort((a, b) => a - b).map(band => `n${band}`).join(', '), "No lowband NR 4Rx support", "Lowband NR 4Rx support", "Log misses EN-DC and NR-CA capabilities.");
             addSupportRow(hasEndc || hasNrca, foundNr6Rx, [...nr6RxBands].sort((a, b) => a - b).map(band => `n${band}`).join(', '), "No NR 6Rx support", "NR 6Rx bands", "Log misses EN-DC and NR-CA capabilities.");
             addSupportRow(hasLteCaData || hasEndc, maxLteMimo > 0, `${maxLteMimo} Rx`, "No LTE MIMO support found", "LTE max MIMO Rx", "Log misses LTE-CA and EN-DC capabilities.", true);
