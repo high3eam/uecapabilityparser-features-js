@@ -1,9 +1,5 @@
 (function() {
 
-    if (!localStorage.getItem('hide_advanced_search') && window.location.hostname === 'uecaps.hennes.xyz') {
-        localStorage.setItem('hide_advanced_search', '1');
-    }
-
     if (localStorage.getItem('hide_advanced_search')) {
         function hideAdvancedSearchButton() {
             const advancedSearchBtn = document.querySelector('a[title="Advanced Search"], a[href="/library/advancedsearch/"]');
