@@ -355,6 +355,8 @@
             let nrCaCombos = new Set();
             let nrMmwaveBands = new Set();
             let nrTxSwitchingCombos = new Set();
+            let nrTxSwitching2T2TCombos = new Set();
+            let foundNrTxSwitching2T2TSupport = false;
             let foundNrUlMimo = false;
             let foundNrUlCa = false;
             let hasNrca = false;
@@ -760,9 +762,8 @@
                                     );
 
                                     if (hasValidTxSwitching) {
-                                        const ulBands = nrcaItem.components
-                                            .filter(component => component.bwClassUl)
-                                            .map(component => component.band);
+                                        const ulComponents = nrcaItem.components.filter(component => component.bwClassUl);
+                                        const ulBands = ulComponents.map(component => component.band);
 
                                         if (ulBands.length > 1) {
                                             const sortedBands = ulBands.sort((a, b) => a - b);
@@ -771,6 +772,25 @@
                                             if (!nrTxSwitchingCombos.has(comboString)) {
                                                 nrTxSwitchingCombos.add(comboString);
                                                 foundNrTxSwitchingSupport = true;
+                                            }
+
+                                            const tddComponents = ulComponents.filter(component => nrTddBands.has(component.band));
+                                            const fddComponents = ulComponents.filter(component => nrFddBands.has(component.band));
+
+                                            if (tddComponents.length >= 1 && fddComponents.length >= 1) {
+                                                const has2TxTdd = tddComponents.some(component => 
+                                                    component.mimoUl && component.mimoUl.value === 2
+                                                );
+                                                const has2TxFdd = fddComponents.some(component => 
+                                                    component.mimoUl && component.mimoUl.value === 2
+                                                );
+
+                                                if (has2TxTdd && has2TxFdd) {
+                                                    if (!nrTxSwitching2T2TCombos.has(comboString)) {
+                                                        nrTxSwitching2T2TCombos.add(comboString);
+                                                        foundNrTxSwitching2T2TSupport = true;
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -899,6 +919,7 @@
             addSupportRow(hasNrca, foundNrUlMimo, [...nrUlmimoBands].map(band => band.replace('n', '')).sort((a, b) => a - b).map(band => `n${band}`).join(', '), "No NR-SA UL-MIMO support", "NR-SA UL MIMO", "Log misses NR-CA capabilities.");
             addSupportRow(hasNrca, foundNrUlCa, sortCombinations([...nrUlcaCombos]).join(', '), "No NR-SA UL-CA support", "NR-SA ULCA", "Log misses NR-CA capabilities.");
             addSupportRow(hasNrca, foundNrTxSwitchingSupport, sortCombinations([...nrTxSwitchingCombos]).join(', '), "No NR-SA uplink TX switching support", "NR-SA uplink TX switching", "Log misses NR-CA capabilities.");
+            addSupportRow(hasNrca, foundNrTxSwitching2T2TSupport, sortCombinations([...nrTxSwitching2T2TCombos]).join(', '), "No NR-SA uplink TX switching 2T+2T support", "NR-SA uplink TX switching 2T+2T", "Log misses NR-CA capabilities.");
             addSupportRow(hasNrca, maxNrFddBandwidth > 0, `${maxNrFddBandwidth}MHz`, "No NR-SA max overall FR1 FDD bandwidth support", "NR-SA max overall FR1 FDD bandwidth", "Log misses NR-CA capabilities.");
             addSupportRow(hasNrca, maxNrTddBandwidth > 0, `${maxNrTddBandwidth}MHz`, "No NR-SA max overall FR1 TDD bandwidth support", "NR-SA max overall FR1 TDD bandwidth", "Log misses NR-CA capabilities.");
             for (let i = 2; i <= maxSupportedComboSize; i++) {
